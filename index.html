@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Audio Downloader</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #000;
+        color: #fff;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .container {
+        max-width: 600px;
+        padding: 20px;
+        text-align: center;
+        border: 2px solid #fff;
+        border-radius: 10px;
+        background-image: url('space_background.jpg'); /* Add your space-themed background image */
+        background-size: cover;
+        background-position: center;
+        animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    h1 {
+        font-size: 36px;
+        margin-bottom: 20px;
+        color: #fff;
+        text-shadow: 2px 2px 4px #000;
+    }
+
+    input[type="text"] {
+        width: 80%;
+        padding: 10px;
+        margin-top: 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    #output {
+        margin-top: 20px;
+        display: none;
+    }
+
+    #output p {
+        color: #fff;
+    }
+
+    #output a {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 10px;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    #output a:hover {
+        background-color: #218838;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>YouTube Audio Downloader</h1>
+    <input type="text" id="videoUrl" placeholder="Enter YouTube video URL">
+    <select id="qualitySelect">
+        <option value="320">320 Kbps</option>
+        <option value="192">192 Kbps</option>
+        <option value="256">256 Kbps</option>
+        <option value="128">128 Kbps</option>
+        <option value="64">64 Kbps</option>
+        <option value="custom">Custom</option>
+    </select>
+    <button onclick="downloadAudio()">Download Audio</button>
+    <div id="output"></div>
+</div>
+
+<script>
+function downloadAudio() {
+    const request = new XMLHttpRequest();
+    const url = 'https://youtube-mp3-downloader2.p.rapidapi.com/ytmp3/ytmp3/';
+    const apiKey = '378ce48ee9mshad292b3c10ddec3p1cdba8jsne6ad8fd135ca';
+    const videoUrl = document.getElementById('videoUrl').value;
+    const qualitySelect = document.getElementById('qualitySelect');
+    const quality = qualitySelect.value === 'custom' ? 'custom' : qualitySelect.value;
+
+    request.open('GET', `${url}?url=${encodeURIComponent(videoUrl)}&quality=${quality}`, true);
+    request.setRequestHeader('X-RapidAPI-Key', apiKey);
+    request.setRequestHeader('X-RapidAPI-Host', 'youtube-mp3-downloader2.p.rapidapi.com');
+
+    request.onreadystatechange = function() {
+        if (request.readyState === 4 && request.status === 200) {
+            const response = JSON.parse(request.responseText);
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = `
+                <p>Video ID: ${response.videoid}</p>
+                <p>Unique ID: ${response.uniqueid}</p>
+                <p>Progress: ${response.progress}%</p>
+                <p>Status: ${response.status}</p>
+                <p>Download Link: <a href="${response.dlink}" download>Download Audio</a></p>
+            `;
+            outputDiv.style.display = 'block';
+        } else {
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = 'Error occurred while downloading the audio.';
+            outputDiv.style.display = 'block';
+        }
+    };
+
+    request.send();
+}
+</script>
+</body>
+</html>
