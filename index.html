@@ -1,151 +1,604 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YouTube Audio Downloader</title>
-<style>
+  <title>Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
     body {
-        font-family: Arial, sans-serif;
-        background-color: #000;
-        color: #fff;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
     }
 
-    .container {
-        max-width: 600px;
-        padding: 20px;
-        text-align: center;
-        border: 2px solid #fff;
-        border-radius: 10px;
-        background-image: url('space_background.jpg'); /* Add your space-themed background image */
-        background-size: cover;
-        background-position: center;
-        animation: fadeIn 1s ease;
+    .gallery-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-gap: 20px;
+      padding: 20px;
     }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
     }
 
-    h1 {
-        font-size: 36px;
-        margin-bottom: 20px;
-        color: #fff;
-        text-shadow: 2px 2px 4px #000;
+    .gallery-item img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
     }
 
-    input[type="text"] {
-        width: 80%;
-        padding: 10px;
-        margin-top: 20px;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
+    .gallery-item:hover img {
+      transform: scale(1.1);
     }
 
-    button {
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-top: 10px;
-        font-size: 16px;
-        transition: background-color 0.3s ease;
+    .gallery-item .title {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    button:hover {
-        background-color: #0056b3;
+    .fullscreen-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
     }
 
-    #output {
-        margin-top: 20px;
-        display: none;
+    .fullscreen-image.show {
+      opacity: 1;
+      visibility: visible;
     }
 
-    #output p {
-        color: #fff;
+    .fullscreen-image img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
     }
+    .settings-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 1000;
+}
 
-    #output a {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #28a745;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 5px;
-        margin-top: 10px;
-        font-size: 16px;
-        transition: background-color 0.3s ease;
-    }
+.settings-viewbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
 
-    #output a:hover {
-        background-color: #218838;
-    }
-</style>
+.settings-viewbox.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.settings-panel {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  width: 400px;
+}
+
+.dark-mode .settings-panel {
+  background-color: #333;
+  color: #fff;
+}
+.settings-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background-image: url('settings-icon.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.settings-viewbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.settings-viewbox.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.settings-panel {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  width: 400px;
+  position: relative;
+}
+
+.settings-panel-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  background-image: url('close-icon.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+.settings-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #333;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 999;
+}
+
+.settings-viewbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 1000;
+}
+
+.settings-viewbox.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.settings-panel {
+  background-color: #fff;
+  width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.settings-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.settings-panel-content {
+  padding: 24px;
+}
+
+.settings-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.settings-panel-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.settings-panel-footer button {
+  margin-left: 12px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #2196f3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196f3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(24px);
+  -ms-transform: translateX(24px);
+  transform: translateX(24px);
+}
+
+.slider.round {
+  border-radius: 24px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+/* Dark mode styles */
+body.dark-mode .settings-panel {
+  background-color: #1c1c1e;
+  color: #f1f1f1;
+}
+
+body.dark-mode .settings-panel-header,
+body.dark-mode .settings-panel-footer {
+  border-color: #2c2c2e;
+}
+
+body.dark-mode .settings-save,
+body.dark-mode .settings-exit {
+  background-color: #2c2c2e;
+  color: #f1f1f1;
+}
+
+body.dark-mode .settings-save:hover,
+body.dark-mode .settings-exit:hover {
+  background-color: #3c3c3e;
+}
+body {
+  background-color: #fafafa;
+  transition: background-color 0.3s;
+}
+
+body.dark-mode {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+/* Existing CSS styles */
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-container input {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 20px 0 0 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  transition: width 0.3s ease;
+}
+
+.search-container input:focus {
+  outline: none;
+  width: 400px;
+}
+
+.search-container button {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 0 20px 20px 0;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-container button:hover {
+  background-color: #555;
+}
+
+.search-container button:active {
+  transform: translateY(1px);
+}
+
+.search-container button:focus {
+  outline: none;
+}
+
+.search-container .search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+}
+
+.search-container .search-icon i {
+  font-size: 18px;
+}
+  </style>
 </head>
 <body>
-<div class="container">
-    <h1>YouTube Audio Downloader</h1>
-    <input type="text" id="videoUrl" placeholder="Enter YouTube video URL">
-    <select id="qualitySelect">
-        <option value="320">320 Kbps</option>
-        <option value="192">192 Kbps</option>
-        <option value="256">256 Kbps</option>
-        <option value="128">128 Kbps</option>
-        <option value="64">64 Kbps</option>
-        <option value="custom">Custom</option>
-    </select>
-    <button onclick="downloadAudio()">Download Audio</button>
-    <div id="output"></div>
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search by ID or Title">
+    <button id="searchButton">Search</button>
+  </div>
+  <div class="gallery-container">
+    <!-- Gallery images will be dynamically inserted here -->
+  </div>
+
+  <div class="fullscreen-image">
+    <img src="" alt="">
+  </div>
+<div class="settings-button">
+  <i class="fas fa-cog"></i>
 </div>
 
+<div class="settings-viewbox">
+  <div class="settings-panel">
+    <div class="settings-panel-header">
+      <h3>Settings</h3>
+      <button class="settings-panel-close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="settings-panel-content">
+      <div class="settings-option">
+        <label for="dark-mode-toggle">Dark Mode</label>
+        <label class="switch">
+          <input type="checkbox" id="dark-mode-toggle">
+          <span class="slider round"></span>
+        </label>
+      </div>
+      <!-- Add more settings options as needed -->
+    </div>
+    <div class="settings-panel-footer">
+      <button class="settings-save">Save</button>
+      <button class="settings-exit">Exit</button>
+    </div>
+  </div>
+</div>
 <script>
-function downloadAudio() {
-    const request = new XMLHttpRequest();
-    const url = 'https://youtube-mp3-downloader2.p.rapidapi.com/ytmp3/ytmp3/';
-    const apiKey = '378ce48ee9mshad292b3c10ddec3p1cdba8jsne6ad8fd135ca';
-    const videoUrl = document.getElementById('videoUrl').value;
-    const qualitySelect = document.getElementById('qualitySelect');
-    const quality = qualitySelect.value === 'custom' ? 'custom' : qualitySelect.value;
+  fetch('https://raw.githubusercontent.com/PrienceProtia08/7bora/main/p.json')
+  .then(response => response.json())
+  .then(data => {
+    const galleryContainer = document.querySelector('.gallery-container');
+    const fullscreenImage = document.querySelector('.fullscreen-image');
+    const fullscreenImageElement = fullscreenImage.querySelector('img');
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
 
-    request.open('GET', `${url}?url=${encodeURIComponent(videoUrl)}&quality=${quality}`, true);
-    request.setRequestHeader('X-RapidAPI-Key', apiKey);
-    request.setRequestHeader('X-RapidAPI-Host', 'youtube-mp3-downloader2.p.rapidapi.com');
+    function createGalleryItem(item) {
+      const galleryItem = document.createElement('div');
+      galleryItem.classList.add('gallery-item');
+      galleryItem.dataset.id = item.id;
 
-    request.onreadystatechange = function() {
-        if (request.readyState === 4 && request.status === 200) {
-            const response = JSON.parse(request.responseText);
-            const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = `
-                <p>Video ID: ${response.videoid}</p>
-                <p>Unique ID: ${response.uniqueid}</p>
-                <p>Progress: ${response.progress}%</p>
-                <p>Status: ${response.status}</p>
-                <p>Download Link: <a href="${response.dlink}" download>Download Audio</a></p>
-            `;
-            outputDiv.style.display = 'block';
-        } else {
-            const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = 'Error occurred while downloading the audio.';
-            outputDiv.style.display = 'block';
-        }
-    };
+      const img = document.createElement('img');
+      img.src = item.image_url;
+      img.alt = item.title;
 
-    request.send();
+      const title = document.createElement('div');
+      title.classList.add('title');
+      title.textContent = item.title;
+
+      galleryItem.appendChild(img);
+      galleryItem.appendChild(title);
+
+      galleryItem.addEventListener('click', () => {
+        fullscreenImageElement.src = img.src;
+        fullscreenImage.classList.add('show');
+      });
+
+      return galleryItem;
+    }
+
+    data.forEach(item => {
+      const galleryItem = createGalleryItem(item);
+      galleryContainer.appendChild(galleryItem);
+    });
+
+    fullscreenImage.addEventListener('click', () => {
+      fullscreenImage.classList.remove('show');
+    });
+
+    // Autocomplete functionality
+    const autocompleteContainer = document.createElement('div');
+    autocompleteContainer.classList.add('autocomplete-container');
+searchInput.parentNode.insertBefore(autocompleteContainer, searchInput.nextSibling);
+
+    searchInput.addEventListener('input', () => {
+      autocompleteContainer.innerHTML = '';
+      const searchTerm = searchInput.value.toLowerCase();
+      const suggestions = data.filter(item => {
+        return item.title.toLowerCase().includes(searchTerm);
+      }).slice(0, 5);
+
+      suggestions.forEach(item => {
+        const suggestionItem = document.createElement('div');
+        suggestionItem.classList.add('autocomplete-item');
+        suggestionItem.textContent = item.title;
+        suggestionItem.addEventListener('click', () => {
+          searchInput.value = item.title;
+          performSearch();
+        });
+        autocompleteContainer.appendChild(suggestionItem);
+      });
+    });
+
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        performSearch();
+      }
+    });
+
+    searchButton.addEventListener('click', performSearch);
+
+    function performSearch() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const filteredItems = data.filter(item => {
+        return item.id.toString().includes(searchTerm) || item.title.toLowerCase().includes(searchTerm);
+      });
+
+      galleryContainer.innerHTML = '';
+      filteredItems.forEach(item => {
+        const galleryItem = createGalleryItem(item);
+        galleryContainer.appendChild(galleryItem);
+      });
+
+      autocompleteContainer.innerHTML = '';
+    }
+  });
+  
+const settingsButton = document.querySelector('.settings-button');
+const settingsViewbox = document.querySelector('.settings-viewbox');
+const settingsPanelClose = document.querySelector('.settings-panel-close');
+const darkModeToggle = document.getElementById('dark-mode-toggle');
+const saveButton = document.querySelector('.settings-save');
+const exitButton = document.querySelector('.settings-exit');
+const body = document.body;
+
+function toggleSettings() {
+  settingsViewbox.classList.toggle('show');
 }
-</script>
+
+function toggleDarkMode() {
+  body.classList.toggle('dark-mode');
+}
+
+function closeSettings() {
+  settingsViewbox.classList.remove('show');
+}
+
+function saveSettings() {
+  // Save the current settings, e.g. dark mode state
+  localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+}
+
+function exitSettings() {
+  // Restore any unsaved settings
+  const isDarkMode = localStorage.getItem('darkMode') === 'true';
+  body.classList.toggle('dark-mode', isDarkMode);
+  settingsViewbox.classList.remove('show');
+}
+
+if (settingsButton) {
+  settingsButton.addEventListener('click', toggleSettings);
+}
+
+if (settingsPanelClose) {
+  settingsPanelClose.addEventListener('click', exitSettings);
+}
+
+if (saveButton) {
+  saveButton.addEventListener('click', () => {
+    saveSettings();
+    closeSettings();
+  });
+}
+
+if (exitButton) {
+  exitButton.addEventListener('click', exitSettings);
+}
+
+if (darkModeToggle) {
+  darkModeToggle.addEventListener('change', toggleDarkMode);
+}
+
+// Load settings on page load
+window.addEventListener('load', () => {
+  const isDarkMode = localStorage.getItem('darkMode') === 'true';
+  body.classList.toggle('dark-mode', isDarkMode);
+  if (isDarkMode) {
+    darkModeToggle.checked = true;
+  }
+});
+  </script>
 </body>
 </html>
